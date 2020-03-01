@@ -108,11 +108,19 @@ def main():
                 ciphertext_message = receive_message(connection)
 
                 # TODO: Decrypt message from client
-
+                message = decrypt_message(ciphertext_message,plaintext_key)
+                
                 # TODO: Split response from user into the username and password
-
+                user = message.split(' ')[0]
+                password = message.split(' ')[1]
+                verified = verify_hash(user,password)
                 # TODO: Encrypt response to client
-
+                response = ""
+                if(verified):
+                    response = "Verification Successful!"
+                else:
+                    response = "Verification Failed"
+                ciphertext_response = encrypt_message(response,plaintext_key)
                 # Send encrypted response
                 send_message(connection, ciphertext_response)
             finally:
