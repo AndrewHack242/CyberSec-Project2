@@ -93,9 +93,14 @@ def main():
             print("Couldn't connect to server")
             exit(0)
 
-        # TODO: Encrypt message and send to server
-
-        # TODO: Receive and decrypt response from server
+        # TODO: Encrypt message and send to server DONE
+        encypted_message = encrypt_message(message,key)
+        send_message(sock,encrypted_message)
+        # TODO: Receive and decrypt response from server DONE
+        encrypted_response = receive_message(sock)
+        response = decrypt_message(encrypted_response,key)
+        print(response)
+        
     finally:
         print('closing socket')
         sock.close()
