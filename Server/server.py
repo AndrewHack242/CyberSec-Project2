@@ -14,6 +14,7 @@
 """
 
 import socket
+import hashlib
 
 host = "localhost"
 port = 10001
@@ -66,8 +67,10 @@ def verify_hash(user, password):
         for line in reader.read().split('\n'):
             line = line.split("\t")
             if line[0] == user:
-                # TODO: Generate the hashed password
-                # hashed_password =
+                # TODO: Generate the hashed password DONE
+                p = hashlib.sha3_512()
+                p.update(password.encode())
+                hashed_password = p.digest()
                 return hashed_password == line[2]
         reader.close()
     except FileNotFoundError:
