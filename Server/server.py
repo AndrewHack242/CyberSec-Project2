@@ -15,6 +15,17 @@
 
 import socket
 import hashlib
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import AES
+
+key = RSA.generate(2048)
+private_key = key.export_key()
+file_out = open("private.pem", "wb")
+file_out.write(private_key)
+
+public_key = key.publickey().export_key()
+file_out = open("public.pem", "wb")
+file_out.write(public_key)
 
 host = "localhost"
 port = 10001
@@ -27,8 +38,7 @@ def pad_message(message):
 
 # Write a function that decrypts a message using the server's private key
 def decrypt_key(session_key):
-    # TODO: Implement this function
-    pass
+    return private_key.decrpyt(session_key)
 
 
 # Write a function that decrypts a message using the session key

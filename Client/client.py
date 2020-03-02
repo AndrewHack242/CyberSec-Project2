@@ -15,11 +15,14 @@
 
 import socket
 import os
+from Crypto.PublicKey import RSA
+from Crypto.Cipher import AES
+
+public_key = RSA.importKey(open("public.pem", "rb"))
 
 
 host = "localhost"
 port = 10001
-
 
 # A helper function that you may find useful for AES encryption
 # Is this the best way to pad a message?!?!
@@ -29,22 +32,18 @@ def pad_message(message):
 
 # TODO: Generate a cryptographically random AES key
 def generate_key():
-    # TODO: Implement this function
-    pass
-
+    return os.random(16)
 
 # Takes an AES session key and encrypts it using the appropriate
 # key and return the value
 def encrypt_handshake(session_key):
-    # TODO: Implement this function
-    pass
+    return public_key.encrypt(session_key)
 
 
 # Encrypts the message using AES. Same as server function
 def encrypt_message(message, session_key):
     # TODO: Implement this function
     pass
-
 
 # Decrypts the message using AES. Same as server function
 def decrypt_message(message, session_key):
