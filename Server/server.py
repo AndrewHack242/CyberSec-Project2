@@ -46,11 +46,7 @@ def decrypt_key(session_key):
 
 # Write a function that decrypts a message using the session key
 def decrypt_message(client_message, session_key, nonce, tag):
-    #input file for encrypted message
     private_key = RSA.importKey(open("private.pem").read())
-    #decrypt sessions key with the private RSA key
-    cipher_RSA = PKCS1_OAEP.new(private_key)
-    session_key = cipher_rsa.decrypt(session_key)
     #decrypt the message with the session key
     cipher_AES = AES.new(session_key, AES.MODE_EAX, nonce)
     message = cipher_AES.decrypt_and_verify(client_message, tag)
@@ -63,13 +59,10 @@ def decrypt_message(client_message, session_key, nonce, tag):
 def encrypt_message(message, session_key):
     #access public key
     public_key = RSA.import_key(open("public.pem").read())
-    #encrypt session key with the public RSA key
-    cipher_RSA = PKCS1_OAEP.new(public_key)
-    encrypted_session_key = cipher_RSA.encrypt(session_key)
     #encrypt message with AES session key
     cipher_AES = AES.new(session_key,AES.MODE_EAX)
     cipher_message, tag = cipher_AES.encrypt_and_digest(message)
-    return encrypted_session_key, cipher_aes.nonce, tag, encrypt_message
+    return cipher_aes.nonce, tag, encrypt_message
 
 # Receive 1024 bytes from the client
 def receive_message(connection):
@@ -136,7 +129,7 @@ def main():
                 ciphertext_message = receive_message(connection)
 
                 # TODO: Decrypt message from client
-                message = decrypt_message(ciphertext_message,plaintext_key)
+                message = decrypt_message(ciphertext_message,plaintext_key, nonce, tag)
                 
                 # TODO: Split response from user into the username and password
                 user = message.split(' ')[0]
@@ -148,7 +141,7 @@ def main():
                     response = "Verification Successful!"
                 else:
                     response = "Verification Failed"
-                ciphertext_response = encrypt_message(response,plaintext_key)
+                nonce, tag, ciphertext_response = encrypt_message(response,plaintext_key)
                 # Send encrypted response
                 send_message(connection, ciphertext_response)
             finally:

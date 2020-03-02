@@ -8,7 +8,7 @@
         is provided as a sanity check)
 
     Put your team members' names:
-
+    Gunther Wallach
 
 
 """
@@ -57,15 +57,10 @@ def decrypt_message(client_message, session_key, nonce, tag):
 
 # Encrypt a message using the session key. Same as server function
 def encrypt_message(message, session_key):
-    #access public key
-    public_key = RSA.import_key(open("public.pem").read())
-    #encrypt session key with the public RSA key
-    cipher_RSA = PKCS1_OAEP.new(public_key)
-    encrypted_session_key = cipher_RSA.encrypt(session_key)
     #encrypt message with AES session key
     cipher_AES = AES.new(session_key,AES.MODE_EAX)
     cipher_message, tag = cipher_AES.encrypt_and_digest(message)
-    return encrypted_session_key, cipher_aes.nonce, tag, encrypt_message
+    return cipher_aes.nonce, tag, encrypt_message
 
 
 # Sends a message over TCP
@@ -110,11 +105,11 @@ def main():
             exit(0)
 
         # TODO: Encrypt message and send to server DONE
-        encypted_message = encrypt_message(message,key)
+        nonce, tag, encrypted_message  = encrypt_message(message,key)
         send_message(sock,encrypted_message)
         # TODO: Receive and decrypt response from server DONE
         encrypted_response = receive_message(sock)
-        response = decrypt_message(encrypted_response,key)
+        response = decrypt_message(encrypted_response, encrypted_key, nonce, tag)
         print(response)
         
     finally:
