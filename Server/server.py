@@ -1,6 +1,5 @@
 """
     server.py - host an SSL server that checks passwords
-
     CSCI 3403
     Authors: Matt Niemiec and Abigail Fernandes
     Number of lines of code in solution: 140
@@ -21,14 +20,18 @@ from Crypto.Cipher import AES, PKCS1_OAEP
 
 key = RSA.generate(2048)
 #generate private key
-private_key = key.export_key()
+private_key = key.exportKey()
 file_out = open("private.pem", "wb")
 file_out.write(private_key)
+file_out.close()
+private_key = RSA.importKey(private_key)
+
 
 #generate public key
-public_key = key.publickey().export_key()
+public_key = key.publickey().exportKey()
 file_out = open("public.pem", "wb")
 file_out.write(public_key)
+file_out.close()
 
 host = "localhost"
 port = 10001
@@ -41,12 +44,12 @@ def pad_message(message):
 
 # Write a function that decrypts a message using the server's private key
 def decrypt_key(session_key):
-    return private_key.decrpyt(session_key)
+    return private_key.decrypt(session_key)
 
 
 # Write a function that decrypts a message using the session key
 def decrypt_message(client_message, session_key, nonce, tag):
-    private_key = RSA.importKey(open("private.pem").read())
+    private_key = RSA.importKey(open("private.pem").read());
     #decrypt the message with the session key
     cipher_AES = AES.new(session_key, AES.MODE_EAX, nonce)
     message = cipher_AES.decrypt_and_verify(client_message, tag)
