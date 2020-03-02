@@ -21,14 +21,16 @@ from Crypto.Cipher import AES, PKCS1_OAEP
 
 key = RSA.generate(2048)
 #generate private key
-private_key = key.export_key()
+private_key = key.exportKey()
 file_out = open("private.pem", "wb")
 file_out.write(private_key)
+file_out.close()
 
 #generate public key
-public_key = key.publickey().export_key()
+public_key = key.publickey().exportKey()
 file_out = open("public.pem", "wb")
 file_out.write(public_key)
+file_out.close()
 
 host = "localhost"
 port = 10001
