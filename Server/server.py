@@ -1,6 +1,5 @@
 """
     server.py - host an SSL server that checks passwords
-
     CSCI 3403
     Authors: Matt Niemiec and Abigail Fernandes
     Number of lines of code in solution: 140
