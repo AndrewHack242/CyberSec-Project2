@@ -18,10 +18,11 @@ import os
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import AES, PKCS1_OAEP
 
-public_key = RSA.importKey(open("public.pem", "rb"))
-
+file = open("public.pem", "rb")
+public_key = RSA.importKey(file.read())
 
 host = "localhost"
+
 port = 10001
 
 # A helper function that you may find useful for AES encryption
@@ -32,7 +33,7 @@ def pad_message(message):
 
 # TODO: Generate a cryptographically random AES key
 def generate_key():
-    return os.random(16)
+    return os.urandom(16)
 
 # Takes an AES session key and encrypts it using the appropriate
 # key and return the value
