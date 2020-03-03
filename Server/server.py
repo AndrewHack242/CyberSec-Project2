@@ -18,6 +18,7 @@ import hashlib
 from Crypto import Random
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import AES, PKCS1_OAEP
+from Crypto.Random import get_random_bytes
 
 '''key = RSA.generate(2048)
 #generate private key
@@ -29,7 +30,7 @@ private_key = RSA.importKey(private_key)
 
 
 #generate public key
-public_key = key.publickey().exportKey()
+public_key = private_key.publickey().exportKey()
 file_out = open("public.pem", "wb")
 file_out.write(public_key)
 file_out.close()'''
@@ -53,7 +54,8 @@ def decrypt_key(session_key):
 # Write a function that decrypts a message using the session key
 def decrypt_message(client_message, session_key):
     #decrypt the message with the session key
-    iv = client_message[:AES.block_size]
+    
+    iv = get_random_bytes(16)
     cipher_AES = AES.new(session_key, AES.MODE_CFB, iv)
     message = cipher_AES.decrypt(client_message)
     return message[AES.block_size:]
@@ -63,7 +65,7 @@ def decrypt_message(client_message, session_key):
 def encrypt_message(message, session_key):
     #access public key
     #encrypt message with AES session key
-    iv = Random.new().read(AES.block_size)
+    iv = get_random_bytes(16)
     cipher_AES = AES.new(session_key,AES.MODE_CFB, iv)
     cipher_message = iv + cipher_AES.encrypt(message)
     return cipher_message
@@ -91,12 +93,17 @@ def verify_hash(user, password):
         reader = open("passfile.txt", 'r')
         for line in reader.read().split('\n'):
             line = line.split("\t")
+            print(line[0], user)
             if line[0] == user:
+                print("here")
                 # TODO: Generate the hashed password DONE
-                p = hashlib.sha3_512()
-                p.update(password.encode())
-                hashed_password = p.digest()
-                return hashed_password == line[2]
+                salt = line[1].encode('ascii')
+                hashed_password = hashlib.pbkdf2_hmac('sha512', password.encode('utf-8'), salt, 100000)
+                b = bytes(hashed_password)
+                print(type(line[2]), type(hashed_password))
+                print( line[2], "\n\n", b)
+                print(b == line[2])
+                return b == line[2]
         reader.close()
     except FileNotFoundError:
         return False
@@ -127,16 +134,20 @@ def main():
                 send_message(connection, "okay")
 
                 # Decrypt key from client
+                
                 plaintext_key = decrypt_key(encrypted_key)
+                
+                
 
                 # Receive encrypted message from client
                 ciphertext_message = receive_message(connection)
-
+                
                 # TODO: Decrypt message from client
                 message = decrypt_message(ciphertext_message,plaintext_key)
                 # TODO: Split response from user into the username and password
-                user = message.split(' ')[0]
-                password = message.split(' ')[1]
+                split_string = message.split()
+                user = split_string[0].decode("utf-8")
+                password = split_string[1].decode("utf-8")
                 verified = verify_hash(user,password)
                 # TODO: Encrypt response to client
                 response = ""
@@ -144,7 +155,7 @@ def main():
                     response = "Verification Successful!"
                 else:
                     response = "Verification Failed"
-                ciphertext_response = encrypt_message(response,encrypted_key)
+                ciphertext_response = encrypt_message(response,plaintext_key)
                 # Send encrypted response
                 send_message(connection, ciphertext_response)
             finally:

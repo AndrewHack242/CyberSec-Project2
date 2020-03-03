@@ -45,7 +45,7 @@ def encrypt_handshake(session_key):
 
 def decrypt_message(client_message, session_key):
     #decrypt the message with the session key
-    iv = client_message[:AES.block_size]
+    iv = get_random_bytes(16)
     cipher_AES = AES.new(session_key, AES.MODE_CFB, iv)
     message = cipher_AES.decrypt(client_message)
     return message[AES.block_size:]
@@ -55,7 +55,7 @@ def decrypt_message(client_message, session_key):
 def encrypt_message(message, session_key):
     #access public key
     #encrypt message with AES session key
-    iv = Random.new().read(AES.block_size)
+    iv = get_random_bytes(16)
     cipher_AES = AES.new(session_key,AES.MODE_CFB, iv)
     cipher_message = iv + cipher_AES.encrypt(message)
     return cipher_message
@@ -93,22 +93,26 @@ def main():
         
         # Encrypt the session key using server's public key
         encrypted_key = encrypt_handshake(key)
-
+        
         # Initiate handshake
         send_message(sock, encrypted_key)
-
+        
         # Listen for okay from server (why is this necessary?)
         if receive_message(sock).decode() != "okay":
             print("Couldn't connect to server")
             exit(0)
-
+        
         # TODO: Encrypt message and send to server DONE
-        encrypted_message  = encrypt_message(message,encrypted_key)
+        encrypted_message  = encrypt_message(message,key)
+        
         send_message(sock,encrypted_message)
+        
         
         # TODO: Receive and decrypt response from server DONE
         encrypted_response = receive_message(sock)
+        
         response = decrypt_message(encrypted_response, key)
+        
         print(response)
         
     finally:
