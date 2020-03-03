@@ -33,6 +33,9 @@ file_out = open("public.pem", "wb")
 file_out.write(public_key)
 file_out.close()'''
 
+file = open("private.pem", "rb")
+private_key = RSA.importKey(file.read())
+
 host = "localhost"
 port = 10001
 
