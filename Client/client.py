@@ -41,27 +41,27 @@ def encrypt_handshake(session_key):
     return public_key.encrypt(session_key)
 
 
-# Encrypts the message using AES. Same as server function
-def decrypt_message(client_message, session_key, nonce, tag):
-    #input file for encrypted message
-    private_key = RSA.importKey(open("private.pem").read())
-    #decrypt sessions key with the private RSA key
-    cipher_RSA = PKCS1_OAEP.new(private_key)
-    session_key = cipher_rsa.decrypt(session_key)
+def decrypt_message(client_message, session_key):
+    file_in = open("encrypted_message.bin","rb")
+    private_key = RSA.importKey(open("private.pem").read());
+    encrypted_session_key, nonce, tag, client_message = \
+       [ file_in.read(x) for x in (private_key.size_in_bytes(), 16, 16, -1) ]
     #decrypt the message with the session key
     cipher_AES = AES.new(session_key, AES.MODE_EAX, nonce)
     message = cipher_AES.decrypt_and_verify(client_message, tag)
     return message
     
     
-
-
-# Encrypt a message using the session key. Same as server function
+# Encrypt a message using the session key
 def encrypt_message(message, session_key):
+    #access public key
+    file_out = open("encrypted_message.bin","rb")
+    public_key = RSA.import_key(open("public.pem").read())
     #encrypt message with AES session key
     cipher_AES = AES.new(session_key,AES.MODE_EAX)
     cipher_message, tag = cipher_AES.encrypt_and_digest(message)
-    return cipher_aes.nonce, tag, encrypt_message
+    [ file_out.write(x) for x in (session_key, cipher_AES.nonce, tag, cipher_message) ]
+    return cipher_message
 
 
 # Sends a message over TCP
@@ -106,11 +106,12 @@ def main():
             exit(0)
 
         # TODO: Encrypt message and send to server DONE
-        nonce, tag, encrypted_message  = encrypt_message(message,key)
+        encrypted_message  = encrypt_message(message,encrypted_key)
         send_message(sock,encrypted_message)
+        
         # TODO: Receive and decrypt response from server DONE
         encrypted_response = receive_message(sock)
-        response = decrypt_message(encrypted_response, encrypted_key, nonce, tag)
+        response = decrypt_message(encrypted_response, key)
         print(response)
         
     finally:
