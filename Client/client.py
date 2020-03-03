@@ -8,7 +8,7 @@
         is provided as a sanity check)
 
     Put your team members' names:
-    Gunther Wallach
+    Gunther Wallach, Andrew Hack, Justin Sperry
 
 
 """
