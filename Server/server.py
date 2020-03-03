@@ -92,9 +92,7 @@ def verify_hash(user, password):
             line = line.split("\t")
             if line[0] == user:
                 # TODO: Generate the hashed password DONE
-                p = hashlib.sha3_512()
-                p.update(password.encode())
-                hashed_password = p.digest()
+                hashed_password = hashlib.pbkdf2_hmac('sha512', password.encode('utf-8'), line[1], 100000)
                 return hashed_password == line[2]
         reader.close()
     except FileNotFoundError:
@@ -131,8 +129,8 @@ def main():
                 # Receive encrypted message from client
                 ciphertext_message = receive_message(connection)
 
-                # TODO: Decrypt message from client
                 message = decrypt_message(ciphertext_message,plaintext_key, nonce, tag)
+                # TODO: Decrypt message from client
                 
                 # TODO: Split response from user into the username and password
                 user = message.split(' ')[0]
