@@ -93,17 +93,17 @@ def verify_hash(user, password):
         reader = open("passfile.txt", 'r')
         for line in reader.read().split('\n'):
             line = line.split("\t")
-            print(line[0], user)
             if line[0] == user:
-                print("here")
                 # TODO: Generate the hashed password DONE
                 salt = line[1].encode('ascii')
                 hashed_password = hashlib.pbkdf2_hmac('sha512', password.encode('utf-8'), salt, 100000)
-                b = bytes(hashed_password)
-                print(type(line[2]), type(hashed_password))
-                print( line[2], "\n\n", b)
-                print(b == line[2])
-                return b == line[2]
+                writer = open("temp.txt", 'w')
+                writer.write("{0}".format(hashed_password))
+                writer.close()
+                file = open("temp.txt", 'r')
+                hashed = file.read()
+                file.close()
+                return hashed == line[2]
         reader.close()
     except FileNotFoundError:
         return False
@@ -152,9 +152,10 @@ def main():
                 # TODO: Encrypt response to client
                 response = ""
                 if(verified):
-                    response = "Verification Successful!"
+                    response = "User successfully authenticated!"
                 else:
-                    response = "Verification Failed"
+                    response = "Password or username incorrect"
+                print(response)
                 ciphertext_response = encrypt_message(response,plaintext_key)
                 # Send encrypted response
                 send_message(connection, ciphertext_response)

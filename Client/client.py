@@ -113,7 +113,7 @@ def main():
         
         response = decrypt_message(encrypted_response, key)
         
-        print(response)
+        print(response.decode('ascii'))
         
     finally:
         print('closing socket')
