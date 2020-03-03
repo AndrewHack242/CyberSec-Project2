@@ -15,6 +15,7 @@
 
 import socket
 import hashlib
+from Crypto import Random
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import AES, PKCS1_OAEP
 
@@ -52,7 +53,7 @@ def decrypt_key(session_key):
 # Write a function that decrypts a message using the session key
 def decrypt_message(client_message, session_key):
     #decrypt the message with the session key
-    iv = enc_msg[:AES.block_size]
+    iv = client_message[:AES.block_size]
     cipher_AES = AES.new(session_key, AES.MODE_CFB, iv)
     message = cipher_AES.decrypt(client_message)
     return message[AES.block_size:]
@@ -63,7 +64,7 @@ def encrypt_message(message, session_key):
     #access public key
     #encrypt message with AES session key
     iv = Random.new().read(AES.block_size)
-    cipher_AES = AES.new(session_key,AES.MODE_CFB)
+    cipher_AES = AES.new(session_key,AES.MODE_CFB, iv)
     cipher_message = iv + cipher_AES.encrypt(message)
     return cipher_message
 

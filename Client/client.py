@@ -15,6 +15,8 @@
 
 import socket
 import os
+from Crypto import Random
+from Crypto.Random import get_random_bytes
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import AES, PKCS1_OAEP
 
@@ -33,7 +35,7 @@ def pad_message(message):
 
 # TODO: Generate a cryptographically random AES key
 def generate_key():
-    return os.urandom(16)
+    return get_random_bytes(16)
 
 # Takes an AES session key and encrypts it using the appropriate
 # key and return the value
@@ -43,7 +45,7 @@ def encrypt_handshake(session_key):
 
 def decrypt_message(client_message, session_key):
     #decrypt the message with the session key
-    iv = enc_msg[:AES.block_size]
+    iv = client_message[:AES.block_size]
     cipher_AES = AES.new(session_key, AES.MODE_CFB, iv)
     message = cipher_AES.decrypt(client_message)
     return message[AES.block_size:]
@@ -54,7 +56,7 @@ def encrypt_message(message, session_key):
     #access public key
     #encrypt message with AES session key
     iv = Random.new().read(AES.block_size)
-    cipher_AES = AES.new(session_key,AES.MODE_CFB)
+    cipher_AES = AES.new(session_key,AES.MODE_CFB, iv)
     cipher_message = iv + cipher_AES.encrypt(message)
     return cipher_message
 
@@ -88,7 +90,7 @@ def main():
 
         # Generate random AES key
         key = generate_key()
-
+        
         # Encrypt the session key using server's public key
         encrypted_key = encrypt_handshake(key)
 
