@@ -138,7 +138,6 @@ def main():
 
                 # TODO: Decrypt message from client
                 message = decrypt_message(ciphertext_message,plaintext_key)
-                
                 # TODO: Split response from user into the username and password
                 user = message.split(' ')[0]
                 password = message.split(' ')[1]
