@@ -53,6 +53,7 @@ def decrypt_message(client_message, session_key):
 def encrypt_message(message, session_key):
     #access public key
     #encrypt message with AES session key
+    iv = Random.new().read(AES.block_size)
     cipher_AES = AES.new(session_key,AES.MODE_CFB)
     cipher_message = iv + cipher_AES.encrypt(message)
     return cipher_message
