@@ -38,7 +38,7 @@ def generate_key():
 # Takes an AES session key and encrypts it using the appropriate
 # key and return the value
 def encrypt_handshake(session_key):
-    return public_key.encrypt(session_key)
+    return public_key.encrypt(session_key,0)[0]
 
 
 def decrypt_message(client_message, session_key):
