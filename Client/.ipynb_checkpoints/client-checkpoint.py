@@ -38,29 +38,23 @@ def generate_key():
 # Takes an AES session key and encrypts it using the appropriate
 # key and return the value
 def encrypt_handshake(session_key):
-    return public_key.encrypt(session_key)
+    return public_key.encrypt(session_key,0)[0]
 
 
 def decrypt_message(client_message, session_key):
-    file_in = open("encrypted_message.bin","rb")
-    private_key = RSA.importKey(open("private.pem").read());
-    encrypted_session_key, nonce, tag, client_message = \
-       [ file_in.read(x) for x in (private_key.size_in_bytes(), 16, 16, -1) ]
     #decrypt the message with the session key
-    cipher_AES = AES.new(session_key, AES.MODE_EAX, nonce)
-    message = cipher_AES.decrypt_and_verify(client_message, tag)
+    iv = enc_msg[:AES.block_size]
+    cipher_AES = AES.new(session_key, AES.MODE_EAX, iv)
+    message = cipher_AES.decrypt(client_message)
     return message
     
     
 # Encrypt a message using the session key
 def encrypt_message(message, session_key):
     #access public key
-    file_out = open("encrypted_message.bin","rb")
-    public_key = RSA.import_key(open("public.pem").read())
     #encrypt message with AES session key
     cipher_AES = AES.new(session_key,AES.MODE_EAX)
-    cipher_message, tag = cipher_AES.encrypt_and_digest(message)
-    [ file_out.write(x) for x in (session_key, cipher_AES.nonce, tag, cipher_message) ]
+    cipher_message = cipher_AES.encrypt(message)
     return cipher_message
 
 
